@@ -1,0 +1,32 @@
+# Local runtime data — NEVER commit (contains your decrypted messages + keys)
+# The tool writes these to %LOCALAPPDATA%\ChatRelay, outside the repo, but guard anyway:
+*.hex
+enckeys.json
+index.db
+dec_*.db
+*.db-wal
+*.db-shm
+*.sqlite
+
+# Local machine config (absolute paths / per-user)
+.mcp.json
+claude_desktop_config.json
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# .NET build output
+bin/
+obj/
+*.msix
+*.cer
+*.pfx
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
