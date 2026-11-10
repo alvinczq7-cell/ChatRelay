@@ -7,6 +7,7 @@ import os, sys, datetime
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from mcp.server.fastmcp import FastMCP
 from store import Store, Index
+from consent import require_consent
 
 mcp = FastMCP("chatrelay")
 _index = None
@@ -17,13 +18,15 @@ def store():
     global _index
     if _index is None:
         if not Index.ready():
+            require_consent()   # decryption only after explicit acknowledgment
             Store().build_index()
         _index = Index()
     return _index
 
 def _rebuild():
     global _index
-    Store().build_index()   # decrypt latest DBs + incrementally update the index
+    require_consent()           # decryption only after explicit acknowledgment
+    Store().build_index()       # decrypt latest DBs + incrementally update the index
     _index = Index()
 
 def _t(ts):
