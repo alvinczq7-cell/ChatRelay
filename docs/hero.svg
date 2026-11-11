@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 660" font-family="-apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Roboto, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#9aa0a6"/>
+    </marker>
+  </defs>
+
+  <!-- backdrop -->
+  <rect x="0" y="0" width="1200" height="660" rx="24" fill="#F7F7F8"/>
+  <rect x="0.5" y="0.5" width="1199" height="659" rx="24" fill="none" stroke="#E5E7EB"/>
+
+  <!-- caption -->
+  <text x="56" y="56" font-size="27" font-weight="700" fill="#111827">在 Claude 里，直接问你的微信</text>
+  <text x="56" y="86" font-size="16" fill="#6b7280">ChatRelay — 原生 MCP server，把你自己的微信接进 AI agent（本地 · 只读）</text>
+
+  <!-- ================= LEFT: Claude chat mock ================= -->
+  <rect x="56" y="112" width="560" height="496" rx="18" fill="#FFFFFF" stroke="#E5E7EB"/>
+  <circle cx="88" cy="148" r="12" fill="#D97757"/>
+  <text x="112" y="155" font-size="19" font-weight="700" fill="#111827">Claude</text>
+  <line x1="72" y1="172" x2="600" y2="172" stroke="#F0F0F2"/>
+
+  <!-- user bubble (right) -->
+  <rect x="196" y="192" width="396" height="52" rx="14" fill="#EEF0FF"/>
+  <text x="572" y="224" text-anchor="end" font-size="17" fill="#1f2937">上周和导师聊的 deadline 是哪天？</text>
+
+  <!-- tool-call chip -->
+  <rect x="72" y="266" width="322" height="34" rx="17" fill="#F3F4F6" stroke="#E5E7EB"/>
+  <text x="90" y="288" font-size="14" fill="#4b5563">⚙  调用 MCP 工具  ·  chatrelay.get_history</text>
+
+  <!-- claude reply bubble (left) -->
+  <rect x="72" y="318" width="496" height="256" rx="14" fill="#FFFFFF" stroke="#E5E7EB"/>
+  <text x="96" y="356" font-size="18" font-weight="700" fill="#111827">deadline 是 11 月 14 日（下周五）。</text>
+  <text x="96" y="388" font-size="15" fill="#374151">依据你和导师在「科研组」里的对话：</text>
+  <rect x="96" y="406" width="448" height="72" rx="10" fill="#FAFAFB" stroke="#EDEDF0"/>
+  <rect x="96" y="406" width="4" height="72" rx="2" fill="#D97757"/>
+  <text x="120" y="438" font-size="15" font-style="italic" fill="#374151">“最终版下周五（14 号）前发我。”</text>
+  <text x="120" y="462" font-size="13" fill="#9ca3af">— 导师 · 11/07 20:14</text>
+  <text x="96" y="534" font-size="13" fill="#9ca3af">🔒 消息全程留在你的电脑里，未上传</text>
+
+  <!-- ================= connector ================= -->
+  <line x1="616" y1="236" x2="712" y2="236" stroke="#9aa0a6" stroke-width="2" marker-end="url(#arrow)" marker-start="url(#arrow)"/>
+  <text x="664" y="224" text-anchor="middle" font-size="13" font-weight="600" fill="#6b7280">MCP</text>
+  <text x="664" y="258" text-anchor="middle" font-size="12" fill="#9ca3af">只读</text>
+
+  <!-- ================= RIGHT: how it works ================= -->
+  <!-- ChatRelay node -->
+  <rect x="724" y="176" width="420" height="116" rx="16" fill="#FFF7F4" stroke="#F0C9B8"/>
+  <circle cx="758" cy="214" r="12" fill="#D97757"/>
+  <text x="782" y="221" font-size="22" font-weight="700" fill="#9A3412">ChatRelay</text>
+  <text x="748" y="256" font-size="14" fill="#8a7b73">本地 MCP server · 向 agent 暴露 6 个只读工具：</text>
+  <text x="748" y="278" font-size="13" fill="#a8988f">list_sessions · get_history · search · list_files …</text>
+
+  <!-- arrow down -->
+  <line x1="934" y1="292" x2="934" y2="344" stroke="#9aa0a6" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="950" y="324" font-size="13" fill="#6b7280">解密 · 建索引 · 检索</text>
+
+  <!-- WeChat local DB (cylinder) -->
+  <g>
+    <path d="M784 374 a150 26 0 0 1 300 0 v132 a150 26 0 0 1 -300 0 z" fill="#E7F8EE" stroke="#07C160" stroke-width="2"/>
+    <ellipse cx="934" cy="374" rx="150" ry="26" fill="#D6F4E3" stroke="#07C160" stroke-width="2"/>
+  </g>
+  <text x="934" y="440" text-anchor="middle" font-size="19" font-weight="700" fill="#065F46">微信本地数据库</text>
+  <text x="934" y="466" text-anchor="middle" font-size="13" fill="#047857">WeChat local DB · 你的账号 · 本机</text>
+
+  <!-- local badge -->
+  <rect x="784" y="544" width="300" height="42" rx="21" fill="#ECFDF5" stroke="#A7F3D0"/>
+  <text x="934" y="571" text-anchor="middle" font-size="15" font-weight="600" fill="#065F46">🔒 100% 本地运行 · 不上传任何内容</text>
+</svg>

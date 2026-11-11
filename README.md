@@ -2,6 +2,8 @@
 
 > A native **MCP server** that plugs **your own** WeChat into Claude / Codex / Cursor — your agent reads and searches your chat history & files, locally, on demand.
 
+![在 Claude 里直接问你的微信：agent 通过 MCP 只读检索你本机的微信数据库](docs/hero.svg)
+
 **ChatRelay 是一个原生 MCP server,不是又一个"导出工具"。** 它把**你自己的**微信直接接到 AI agent 里:
 你在 Claude / Codex / Cursor 里问一句,agent 就通过 MCP **按需、只读**地检索你本机的微信消息、联系人和文件,边问边取——
 
