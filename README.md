@@ -1,9 +1,13 @@
-# ChatRelay — 让 AI 读懂你的微信
+# ChatRelay — 把微信装进你的 AI agent
 
-> Let Claude / Codex / Cursor **read your own** WeChat chat history & files, locally, via MCP.
+> A native **MCP server** that plugs **your own** WeChat into Claude / Codex / Cursor — your agent reads and searches your chat history & files, locally, on demand.
 
-把**你自己的**微信聊天记录接进 AI。在你的授权下,Claude / Codex / Cursor 能通过 **MCP** 直接**只读**查询你本机的微信消息、联系人和收到的文件——
-问一句「上周和导师聊的 deadline 是哪天」「把群里关于报销的消息汇总一下」「我最近收到哪些 PDF」,AI 就能从你的聊天记录里给你答案。
+**ChatRelay 是一个原生 MCP server,不是又一个"导出工具"。** 它把**你自己的**微信直接接到 AI agent 里:
+你在 Claude / Codex / Cursor 里问一句,agent 就通过 MCP **按需、只读**地检索你本机的微信消息、联系人和文件,边问边取——
+
+> 「上周和导师聊的 deadline 是哪天」·「把群里关于报销的消息汇总成表」·「我最近收到哪些 PDF,分别讲了什么」
+
+不用先导出、再手动喂给 AI:**你的微信就是 agent 的一个实时数据源。**
 
 **全程本地运行,不上传任何内容。** 已在 **微信 4.2.0.13 / Windows 11** 上验证通过。
 
