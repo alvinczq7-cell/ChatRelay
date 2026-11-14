@@ -12,6 +12,14 @@ from consent import require_consent
 mcp = FastMCP("chatrelay")
 _index = None
 
+def _do_build():
+    """Decrypt changed DBs and (re)build the index, releasing DB handles after."""
+    s = Store()
+    try:
+        s.build_index()
+    finally:
+        s.close()
+
 def store():
     """Return a read-only Index. Builds it once (decrypting) if missing; afterwards
     every query is served from index.db with no decryption."""
@@ -19,7 +27,7 @@ def store():
     if _index is None:
         if not Index.ready():
             require_consent()   # decryption only after explicit acknowledgment
-            Store().build_index()
+            _do_build()
         _index = Index()
     return _index
 
@@ -32,7 +40,7 @@ def _rebuild():
             _index = Index()
         return False
     require_consent()           # decryption only after explicit acknowledgment
-    Store().build_index()       # decrypt changed DBs + incrementally update the index
+    _do_build()                 # decrypt changed DBs + update index
     _index = Index()
     return True
 

@@ -264,6 +264,16 @@ class Store:
     def list_files(self, limit=50):
         return _list_files(self.dbs, limit)
 
+    def close(self):
+        """Close every decrypted-DB connection so their temp files are no longer
+        locked (lets the next refresh overwrite dec_*.db on Windows)."""
+        for c in self._dec.values():
+            try:
+                c.close()
+            except Exception:
+                pass
+        self._dec.clear()
+
 
 def _list_files(dbs, limit=50):
     if not dbs:

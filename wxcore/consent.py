@@ -42,19 +42,19 @@ def consented():
     return os.path.exists(_FLAG)
 
 
+class ConsentError(RuntimeError):
+    """Raised when the operator has not acknowledged the usage notice."""
+
+
 def require_consent():
-    """Call before any decryption. Raises SystemExit with instructions if the
-    operator has not acknowledged the notice above."""
+    """Call before any decryption. Raises ConsentError (a normal Exception, so an
+    MCP tool returns it as an error instead of hanging — SystemExit/BaseException
+    would never reach the client) if the notice has not been acknowledged."""
     if consented():
         return
-    sys.stderr.write(NOTICE)
-    sys.stderr.write(
-        "\n[ChatRelay] 尚未确认使用须知，已停止。\n"
-        "确认方式（任选其一）：\n"
-        "  python wxcore/consent.py accept\n"
-        "  或设置环境变量 CHATRELAY_I_OWN_THIS_DATA=1\n"
-    )
-    raise SystemExit(2)
+    raise ConsentError(
+        "使用须知未确认，已拒绝解密。请先运行  python wxcore/consent.py accept  "
+        "（或设置环境变量 CHATRELAY_I_OWN_THIS_DATA=1），再重试。")
 
 
 def _accept():
