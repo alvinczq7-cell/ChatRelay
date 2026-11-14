@@ -6,7 +6,7 @@ Tools: list_sessions, get_history, search, list_contacts, list_files, refresh.
 import os, sys, datetime
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from mcp.server.fastmcp import FastMCP
-from store import Store, Index
+from store import Store, Index, index_current
 from consent import require_consent
 
 mcp = FastMCP("chatrelay")
@@ -24,10 +24,17 @@ def store():
     return _index
 
 def _rebuild():
+    """Return True if it actually re-decrypted, False if the index was already
+    current (no message DB changed since last build, so nothing to do)."""
     global _index
+    if index_current():
+        if _index is None:
+            _index = Index()
+        return False
     require_consent()           # decryption only after explicit acknowledgment
-    Store().build_index()       # decrypt latest DBs + incrementally update the index
+    Store().build_index()       # decrypt changed DBs + incrementally update the index
     _index = Index()
+    return True
 
 def _t(ts):
     try:
@@ -94,8 +101,7 @@ def list_files(limit: int = 30) -> str:
 def refresh() -> str:
     """Re-decrypt the latest WeChat databases and update the local index with new
     messages. Run this to pick up messages received since the server started."""
-    _rebuild()
-    return "refreshed"
+    return "refreshed (re-decrypted new messages)" if _rebuild() else "already up to date"
 
 if __name__ == "__main__":
     mcp.run()

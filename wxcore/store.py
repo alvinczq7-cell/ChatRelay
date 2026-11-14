@@ -19,6 +19,40 @@ _GROUP_PREFIX = re.compile(r"^[0-9A-Za-z_\-@.]+:\n")
 _TITLE = re.compile(r"<title>(.*?)</title>", re.S)
 
 
+def _message_db_files(dbs):
+    """Sharded message DBs (message_0.db, message_1.db ...), excluding the
+    message_fts.db / message_resource.db side files that have no Name2Id."""
+    out = []
+    for f in sorted(glob.glob(os.path.join(dbs, "message", "message_*.db"))):
+        if re.match(r"^message_\d+\.db$", os.path.basename(f)):
+            out.append(f)
+    return out
+
+
+def index_current():
+    """True if index.db exists and no message_*.db on disk is newer than what was
+    last indexed — i.e. refresh can skip decryption entirely. Cheap: no decrypt."""
+    if not os.path.exists(INDEX_DB):
+        return False
+    dbs = wx.vk.find_db_storage()
+    if not dbs:
+        return False  # can't tell; let caller try a full build
+    c = sqlite3.connect(INDEX_DB)
+    try:
+        if not c.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='kv'").fetchone():
+            return False
+        files = _message_db_files(dbs)
+        if not files:
+            return False
+        for f in files:
+            r = c.execute("SELECT v FROM kv WHERE k=?", ("mt:" + os.path.basename(f),)).fetchone()
+            if not r or float(r[0]) < os.path.getmtime(f):
+                return False
+        return True
+    finally:
+        c.close()
+
+
 def _text_of(local_type, content):
     """Render a message's displayable text."""
     base = local_type & 0xFFFFFFFF
@@ -96,9 +130,7 @@ class Store:
 
     def _load_message_dbs(self):
         self.table_db = {}   # Msg_<md5> -> (conn, name2id list)
-        for f in sorted(glob.glob(os.path.join(self.dbs, "message", "message_*.db"))):
-            if not re.match(r"^message_\d+\.db$", os.path.basename(f)):
-                continue  # skip message_fts.db / message_resource.db etc.
+        for f in _message_db_files(self.dbs):
             c = self._conn(f)
             n2i = [None] + [self._s(r[0]) for r in c.execute("SELECT user_name FROM Name2Id ORDER BY rowid")]
             for (name,) in c.execute(
@@ -182,6 +214,12 @@ class Store:
         ix.execute("CREATE TABLE IF NOT EXISTS sessions("
                    "username TEXT PRIMARY KEY, name TEXT, is_group INT, ts INTEGER, unread INT, summary TEXT)")
         ix.execute("CREATE TABLE IF NOT EXISTS contacts(wxid TEXT PRIMARY KEY, name TEXT)")
+        # kv: durable paths/mtimes so queries (and incremental refresh) need no decrypt
+        ix.execute("CREATE TABLE IF NOT EXISTS kv(k TEXT PRIMARY KEY, v TEXT)")
+        ix.execute("INSERT OR REPLACE INTO kv VALUES('dbs', ?)", (self.dbs,))
+        for f in _message_db_files(self.dbs):
+            ix.execute("INSERT OR REPLACE INTO kv VALUES(?, ?)",
+                       ("mt:" + os.path.basename(f), repr(os.path.getmtime(f))))
         ix.execute("DELETE FROM sessions")
         ix.executemany("INSERT OR REPLACE INTO sessions VALUES(?,?,?,?,?,?)",
                        [(s["username"], s["name"], int(s["is_group"]), s["timestamp"],
@@ -228,7 +266,11 @@ class Store:
 
 
 def _list_files(dbs, limit=50):
+    if not dbs:
+        return []
     root = os.path.normpath(os.path.join(dbs, "..", "msg", "file"))
+    if not os.path.isdir(root):
+        return []
     files = []
     for p in glob.glob(os.path.join(root, "**", "*"), recursive=True):
         if os.path.isfile(p):
@@ -311,5 +353,12 @@ class Index:
 
     def list_files(self, limit=50):
         if self._dbs is None:
-            self._dbs = wx.vk.find_db_storage()
+            # prefer the path recorded at index time: works even if WeChat is closed
+            try:
+                r = self.con.execute("SELECT v FROM kv WHERE k='dbs'").fetchone()
+                self._dbs = r[0] if r and r[0] and os.path.isdir(r[0]) else None
+            except sqlite3.OperationalError:
+                self._dbs = None
+            if not self._dbs:
+                self._dbs = wx.vk.find_db_storage()
         return _list_files(self._dbs, limit)

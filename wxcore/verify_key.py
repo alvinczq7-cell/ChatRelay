@@ -318,11 +318,34 @@ def read_file_shared(path):
     return buf.raw[:got.value]
 
 # ---- main -----------------------------------------------------------------
+_DBPATH_CACHE = os.path.join(os.environ.get("LOCALAPPDATA", "."), "ChatRelay", "dbpath.txt")
+
 def find_db_storage():
-    for root in (os.path.join(os.path.expanduser("~"), "Documents", "xwechat_files"),):
+    """Locate the active account's db_storage. WeChat 4.x lets the user put
+    xwechat_files on any drive, so try a cached hit first, then the default
+    Documents location, then xwechat_files at the root of every fixed drive."""
+    try:
+        p = open(_DBPATH_CACHE, encoding="utf-8").read().strip()
+        if p and os.path.isdir(p):
+            return p
+    except Exception:
+        pass
+    home = os.path.expanduser("~")
+    roots = [os.path.join(home, "Documents", "xwechat_files"),
+             os.path.join(home, "xwechat_files")]
+    for d in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+        base = d + ":\\"
+        if os.path.isdir(base):
+            roots.append(os.path.join(base, "xwechat_files"))
+    for root in roots:
         for acct in glob.glob(os.path.join(root, "*")):
             dbs = os.path.join(acct, "db_storage")
             if os.path.isdir(dbs):
+                try:
+                    os.makedirs(os.path.dirname(_DBPATH_CACHE), exist_ok=True)
+                    open(_DBPATH_CACHE, "w", encoding="utf-8").write(dbs)
+                except Exception:
+                    pass
                 return dbs
     return None
 
